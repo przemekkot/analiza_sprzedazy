@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 def render_tab(df):
 
     
-    grouped = df[df['total_amt']>0].groupby('Store_type')['total_amt'].sum()
+    grouped = df[df['total_amt']>0].groupby(['Store_type','Gender'])['total_amt'].sum()
     fig = go.Figure(data=[go.Bar(labels=grouped.index,values=grouped.values)],layout=go.Layout(title='Udział klientów ze względy na płeć w poszczególnych kanałach sprzedaży'))
     
     layout = html.Div([html.H1('Kanały sprzedaży',style={'text-align':'center'}),

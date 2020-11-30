@@ -9,7 +9,7 @@ from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 import tab1
 import tab2
-#import tab3
+import tab3
 import tab4
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -66,8 +66,8 @@ df.merge()
 app.layout = html.Div([html.Div([dcc.Tabs(id='tabs',value='tab-1',children=[
                             dcc.Tab(label='Sprzedaż globalna',value='tab-1'),
                             dcc.Tab(label='Produkty',value='tab-2'),
-                            dcc.Tab(label='Kanały sprzedaży testowo',value='tab-4')
-                            #dcc.Tab(label='Kanały sprzedaży',value='tab-3')
+                            dcc.Tab(label='Kanały sprzedaży I',value='tab-3'),
+                            dcc.Tab(label='Kanały sprzedaży II',value='tab-4'),
                             ]),
                             html.Div(id='tabs-content')
                     ],style={'width':'80%','margin':'auto'})],
@@ -81,10 +81,10 @@ def render_content(tab):
         return tab1.render_tab(df.merged)
     elif tab == 'tab-2':
         return tab2.render_tab(df.merged)
+    elif tab == 'tab-3':
+        return tab3.render_tab(df.merged)
     elif tab == 'tab-4':
         return tab4.render_tab(df.merged)
-    #elif tab == 'tab-3':
-    #    return tab3.render_tab(df.merged)
     
 
 ## tab1 callbacks
@@ -139,22 +139,14 @@ def tab2_barh_prod_subcat(chosen_cat):
 
 
 ## tab4 callbacks
-@app.callback(Output('bar-store-type-test','figure'),
-            [Input('store_type_dropdown-test','value')])
+@app.callback(Output('pie-store-type-two','figure'),
+            [Input('store_type_dropdown-two','value')])
 def tab4_bar_store_type(chosen_cat):
-
-    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Store_type']==chosen_cat)].pivot_table(index='Store_type',columns='Gender',values='total_amt',aggfunc='sum').assign(_sum=lambda x: x['F']+x['M']).sort_values(by='_sum').round(2)
-
-    traces = []
-    for col in ['F','M']:
-        traces.append(go.Bar(x=grouped[col],y=grouped.index,orientation='h',name=col))
-
-    data = traces
-    fig = go.Figure(data=data,layout=go.Layout(barmode='stack',margin={'t':20,}))
-    return fig
+    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Store_type']==chosen_cat)].groupby('Gender').total_amt.sum().to_frame()
+    return go.Figure(data=go.Pie(labels=grouped.index, values=grouped.total_amt))
 
 
-"""
+
 ## tab3 callbacks
 @app.callback(Output('bar-store-type','figure'),
             [Input('store_type_dropdown','value')])
@@ -171,7 +163,7 @@ def tab3_bar_store_type(chosen_cat):
     fig = go.Figure(data=data,layout=go.Layout(title='Przychody w poszczególne dni tygodnia',barmode='stack',legend=dict(x=0,y=-0.5)))
 
     return fig    
-"""
+
 
 
 
