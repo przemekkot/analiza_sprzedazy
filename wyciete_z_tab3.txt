@@ -1,0 +1,38 @@
+def render_tab(df):
+
+    
+    grouped = df[df['total_amt']>0].groupby(['Store_type','Gender'])['total_amt'].sum()
+    fig = go.Figure(data=[go.Bar(labels=grouped.index,values=grouped.values)],layout=go.Layout(title='Udział klientów ze względy na płeć w poszczególnych kanałach sprzedaży'))
+    
+    layout = html.Div([html.H1('Kanały sprzedaży',style={'text-align':'center'}),
+
+                        #html.Div([html.Div([dcc.Graph(id='pie-store-type',figure=fig)],style={'width':'50%'}), # id do zmiany ? / zmienione ale czy trzeba?
+                        html.Div([dcc.Dropdown(id='store_type_dropdown', 
+                                    options=[{'label':Store_type,'value':Store_type} for Store_type in df['Store_type'].unique()],
+                                    value=df['Store_type'].unique()[0]),
+                                    dcc.Graph(id='bar-store-type', figure=fig)],style={'width':'50%'})],style={'display':'flex'}) 
+                        #html.Div(id='temp-out') # id do zmiany ?
+                        #])
+
+    return layout
+
+##############################################################################################################################
+wycięte dla tab3 z app.py:
+
+
+## tab3 callbacks
+@app.callback(Output('bar-store-type','figure'),
+            [Input('store_type_dropdown','value')])
+def tab3_bar_store_type(chosen_cat):
+
+    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Story_type']==chosen_cat)].groupby([pd.Grouper(key='df.merged.tran_date.dt.dayname()',freq='M'),'Store_type'])['total_amt'].sum().round(2).unstack()
+
+    traces = []
+    for col in grouped.columns:
+        traces.append(go.Bar(x=grouped.index,y=grouped[col],name=col,hoverinfo='text',
+        hovertext=[f'{y/1e3:.2f}k' for y in grouped[col].values]))
+
+    data = traces
+    fig = go.Figure(data=data,layout=go.Layout(title='Przychody w poszczególne dni tygodnia',barmode='stack',legend=dict(x=0,y=-0.5)))
+
+    return fig    

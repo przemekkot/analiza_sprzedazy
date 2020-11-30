@@ -151,21 +151,22 @@ def tab4_bar_store_type(chosen_cat):
 @app.callback(Output('bar-store-type','figure'),
             [Input('store_type_dropdown','value')])
 def tab3_bar_store_type(chosen_cat):
+    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Store_type']==chosen_cat)].groupby(df.merged.tran_date.dt.day_name()).total_amt.sum().to_frame()
+#    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Store_type']==chosen_cat)].groupby(df.merged.tran_date.dt.day_name()).total_amt.sum().sort_values().to_frame()
+    return go.Figure(data=go.Bar(x=df.merged.tran_date.dt.day_name().unique(), y=grouped.total_amt))
 
-    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Story_type']==chosen_cat)].groupby([pd.Grouper(key='df.merged.tran_date.dt.dayname()',freq='M'),'Store_type'])['total_amt'].sum().round(2).unstack()
+#    grouped = df.merged[(df.merged['total_amt']>0)&(df.merged['Story_type']==chosen_cat)].groupby([pd.Grouper(key='df.merged.tran_date.dt.dayname()',freq='M'),'Store_type'])['total_amt'].sum().round(2).unstack()
 
-    traces = []
-    for col in grouped.columns:
-        traces.append(go.Bar(x=grouped.index,y=grouped[col],name=col,hoverinfo='text',
-        hovertext=[f'{y/1e3:.2f}k' for y in grouped[col].values]))
+#    traces = []
+#    for col in grouped.columns:
+#        traces.append(go.Bar(x=grouped.index,y=grouped[col],name=col,hoverinfo='text',
+#        hovertext=[f'{y/1e3:.2f}k' for y in grouped[col].values]))
 
-    data = traces
-    fig = go.Figure(data=data,layout=go.Layout(title='Przychody w poszczególne dni tygodnia',barmode='stack',legend=dict(x=0,y=-0.5)))
+#    data = traces
+#    fig = go.Figure(data=data,layout=go.Layout(title='Przychody w poszczególne dni tygodnia',barmode='stack',legend=dict(x=0,y=-0.5)))
 
-    return fig    
-
-
-
+#    return fig
+#    return go.Figure(data=go.Bar(x=['pn', 'wt', 'sr'], y=[1,2,3]))    
 
 
 if __name__ == '__main__':
